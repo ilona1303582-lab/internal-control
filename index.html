@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171839">
+  <title>Нейросеть в проверке закупок по 44‑ФЗ</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1b2040;
+      --muted: #505874;
+      --line: #dce0ee;
+      --hero: #171839;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #f5f6fc; }
+    h1, h2, h3, p, ul, ol { margin: 0; }
+    a { color: inherit; }
+    a:focus-visible { outline: 3px solid #8774fd; outline-offset: 4px; }
+    .wrap { width: min(74rem, calc(100% - 3rem)); margin-inline: auto; }
+    .hero {
+      color: #fff;
+      background: radial-gradient(ellipse at 90% 40%, #382771, transparent 61%), var(--hero);
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .7rem 1.5rem;
+      padding-block: 1rem;
+      border-bottom: 1px solid #48486d;
+    }
+    .brand { display: flex; align-items: center; gap: .7rem; font-weight: 700; }
+    .brand-mark, .step {
+      display: grid;
+      flex: none;
+      place-items: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: .6rem;
+      font-weight: 700;
+    }
+    .brand-mark, .flow .step { color: #322571; background: #dacfff; }
+    .topbar ul { display: flex; flex-wrap: wrap; gap: .35rem 1.3rem; padding: 0; list-style: none; }
+    .topbar a { color: #efebff; font-size: .88rem; text-decoration: none; }
+    .topbar a:hover { text-decoration: underline; text-underline-offset: .25em; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      align-items: center;
+      gap: clamp(1.65rem, 5vw, 4.6rem);
+      padding-block: clamp(2.75rem, 7vw, 5.5rem);
+    }
+    h1 { font-size: clamp(2.25rem, 5.2vw, 4.6rem); line-height: 1.04; letter-spacing: -.052em; }
+    .gradient { color: #dacfff; }
+    @supports (background-clip: text) {
+      .gradient {
+        background: linear-gradient(105deg, #fff 3%, #d4baff 52%, #96e9ff 98%);
+        background-clip: text;
+        color: transparent;
+      }
+    }
+    .nowrap { white-space: nowrap; }
+    .intro { max-width: 58ch; margin-top: 1.25rem; color: #eee9ff; font-size: 1.06rem; }
+    .intro p + p { margin-top: .6rem; }
+    .flow { padding: 1.2rem; border: 1px solid #8077ad; border-radius: 1.25rem; background: #d0bfff17; }
+    .flow h2 { margin-bottom: .8rem; font-size: 1rem; }
+    .flow ol { display: grid; gap: .5rem; padding: 0; list-style: none; }
+    .flow a {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .65rem;
+      border-radius: .7rem;
+      background: #e5deff14;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .flow a:hover { background: #e5deff29; }
+    .flow a::after { content: "↘"; margin-left: auto; color: #d2c5ff; }
+
+    main { padding-block: clamp(2.4rem, 5vw, 4rem); }
+    main section + section, .reference { margin-top: clamp(2.2rem, 5vw, 3.5rem); }
+    main h2 { margin-bottom: 1rem; font-size: clamp(1.5rem, 3vw, 2.15rem); line-height: 1.2; letter-spacing: -.025em; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .tone-1 { --accent: #6a55d2; --tint: #efebff; }
+    .tone-2 { --accent: #386bb5; --tint: #eaf2ff; }
+    .tone-3 { --accent: #277a70; --tint: #e4f6f0; }
+    .card {
+      display: flex;
+      flex-direction: column;
+      padding: clamp(1.15rem, 2.35vw, 1.6rem);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--accent);
+      border-radius: 1rem;
+      background: #fff;
+      box-shadow: 0 .25rem .9rem #262c6508;
+      scroll-margin-top: 1rem;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .card:target { outline: 3px solid var(--accent); outline-offset: 3px; }
+    @media (hover: hover) {
+      .card:hover { transform: translateY(-.3rem); box-shadow: 0 .65rem 1.4rem #262c651a; border-color: var(--accent); }
+    }
+    .card .step { background: var(--tint); }
+    .card h3 { margin: .75rem 0 .8rem; font-size: 1.23rem; line-height: 1.2; }
+    .card p { color: var(--muted); }
+    .card strong { display: block; margin-bottom: .2rem; color: var(--ink); font-size: .86rem; }
+    .check { margin-bottom: 1rem; }
+    .result { margin-top: auto; padding: .8rem .9rem; border-radius: .65rem; background: var(--tint); }
+
+    .example { padding: 1rem 1.15rem; border-inline-start: 3px solid var(--accent); border-radius: .75rem; background: var(--tint); }
+    .example h3 { margin-bottom: .35rem; font-size: 1rem; }
+    .example p { color: #373f5f; font-size: .94rem; }
+    .reference {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+    .reference h2 { font-size: 1.24rem; margin-bottom: .75rem; }
+    .tags { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0; list-style: none; }
+    .tags li { padding: .3rem .7rem; border: 1px solid var(--line); border-radius: 1rem; background: #fff; font-size: .88rem; }
+    .status::before {
+      display: inline-block;
+      width: .5rem;
+      height: .5rem;
+      margin-inline-end: .45rem;
+      border-radius: 50%;
+      background: var(--dot);
+      content: "";
+    }
+    .confirmed { --dot: #228265; }
+    .mismatch { --dot: #bf443a; }
+    .missing { --dot: #a16000; }
+    .manual { --dot: #6a55d2; }
+
+    @media (max-width: 54rem) {
+      .hero-grid, .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 38rem) {
+      .wrap { width: calc(100% - 2rem); }
+      .reference { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card { transition: none; }
+      .card:hover { transform: none; }
+    }
+    @media (forced-colors: active) {
+      .gradient { background: none; color: CanvasText; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="topbar">
+        <span class="brand"><span class="brand-mark" aria-hidden="true">✓</span>Контроль закупок</span>
+        <nav aria-label="Разделы страницы">
+          <ul>
+            <li><a href="#stages">Этапы проверки</a></li>
+            <li><a href="#examples">Примеры замечаний</a></li>
+            <li><a href="#tools">Инструменты</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <h1><span class="gradient">Нейросеть в проверке закупок</span> <span class="nowrap">по 44‑ФЗ</span></h1>
+          <div class="intro">
+            <p>Нейросеть сверяет документы, находит расхождения и готовит замечания.</p>
+            <p>Сотрудники проверяют выводы, согласуют расчёт и ТЗ, а уполномоченные лица оформляют решение о приёмке.</p>
+          </div>
+        </div>
+        <nav class="flow" aria-labelledby="flow-title">
+          <h2 id="flow-title">Перейти к этапу</h2>
+          <ol>
+            <li><a href="#nmck"><span class="step" aria-hidden="true">1</span>Расчёт НМЦК</a></li>
+            <li><a href="#tz"><span class="step" aria-hidden="true">2</span>Техническое задание</a></li>
+            <li><a href="#docs"><span class="step" aria-hidden="true">3</span>Отчётные документы</a></li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="stages" aria-labelledby="stages-title">
+      <h2 id="stages-title">Этапы проверки</h2>
+      <div class="grid">
+        <article id="nmck" class="card tone-1">
+          <span class="step">1</span>
+          <h3>Расчёт НМЦК</h3>
+          <p class="check"><strong>Что проверяем</strong>Сверяем закупку с планом-графиком, проверяем метод расчёта и сопоставимость ценовых предложений. Пересчитываем суммы в Excel.</p>
+          <p class="result"><strong>Результат</strong>Ошибки в расчёте и список недостающих обоснований.</p>
+        </article>
+        <article id="tz" class="card tone-2">
+          <span class="step">2</span>
+          <h3>Техническое задание</h3>
+          <p class="check"><strong>Что проверяем</strong>Сравниваем ТЗ с расчётом НМЦК и проектом контракта. Проверяем, можно ли измерить результат и чем его подтвердить.</p>
+          <p class="result"><strong>Результат</strong>Замечания к ТЗ. Если изменилось условие, влияющее на цену, повторно проверяем НМЦК.</p>
+        </article>
+        <article id="docs" class="card tone-3">
+          <span class="step">3</span>
+          <h3>Отчётные документы</h3>
+          <p class="check"><strong>Что проверяем</strong>Сверяем комплект документов, сроки, объём и стоимость с подписанным контрактом и ТЗ. Отмечаем, где нужен осмотр или замер.</p>
+          <p class="result"><strong>Результат</strong>Проект замечаний со ссылками на пункты контракта и страницы отчёта.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="examples" aria-labelledby="examples-title">
+      <h2 id="examples-title">Примеры замечаний</h2>
+      <div class="grid">
+        <article class="example tone-1">
+          <h3>Разный состав цены</h3>
+          <p>В одном ценовом предложении доставка включена, в другом её стоимость выделена отдельно. Проверьте, какие суммы использованы в расчёте.</p>
+        </article>
+        <article class="example tone-2">
+          <h3>Разные сроки поставки</h3>
+          <p>Срок в ТЗ отличается от срока в проекте контракта. Уточните срок и оцените, влияет ли изменение на цену.</p>
+        </article>
+        <article class="example tone-3">
+          <h3>Расхождение в объёме работ</h3>
+          <p>В отчёте указан объём меньше предусмотренного контрактом. Сверьте позицию в отчёте с ТЗ и отметьте, требуется ли замер.</p>
+        </article>
+      </div>
+    </section>
+
+    <div class="reference">
+      <div id="tools">
+        <h2>Инструменты</h2>
+        <ul class="tags">
+          <li>Нейросеть</li>
+          <li>Excel</li>
+          <li>Чек-лист сверки</li>
+          <li>Шаблон замечаний</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Статусы проверки</h2>
+        <ul class="tags">
+          <li class="status confirmed">Подтверждено</li>
+          <li class="status mismatch">Есть расхождение</li>
+          <li class="status missing">Недостаточно данных</li>
+          <li class="status manual">Нужна проверка сотрудника</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
